@@ -1,19 +1,18 @@
 import json
+from glob import glob
+from os import path
 
 
 def loadJson(filePrefix):
     accounts = []
-    count = 0
-    while True:
+    # filter json files by prefix so we can load them separately as followers and following
+    files = [fileName for fileName in jsonFiles if filePrefix in fileName]
+    for jfile in files:
         try:
-            # if the number is 0, consider following.json, if its more than 0, consider
-            # following_1.json, following_2.json and so on
-            fileName = f'{filePrefix}{"_" + str(count) if count > 0 else ""}.json'
-            with open(fileName) as f:
+            with open(jfile) as f:
                 accounts.append(json.load(f))
-                count += 1
         except FileNotFoundError:
-            break
+            continue
         except Exception as e:
             print(e)
             break
@@ -25,6 +24,8 @@ def createListFromJson(data, key=None):
     return list(map(lambda f: f['string_list_data'][0]['value'], value))
 
 
+# Use glob to match JSON files in the current folder
+jsonFiles = glob(path.join(path.curdir, '*.json'))
 followingFileName = 'following'
 followersFileName = 'followers'
 followingList = []
