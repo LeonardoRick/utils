@@ -1,0 +1,25 @@
+{
+  "name": "leonardorick-utils",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Utils JS functions from Leonardo Rick",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "node --experimental-vm-modules node_modules/.bin/jest"
+  },
+  "keywords": [
+    "JS",
+    "utils"
+  ],
+  "author": "Leonardo Rick",
+  "license": "ISC",
+  "devDependencies": {
+    "jest": "^29.7.0"
+  },
+  "dependencies": {
+    "@types/jest": "^29.5.11"
+  }
+}
