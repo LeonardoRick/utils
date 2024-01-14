@@ -1,4 +1,4 @@
-import { createDefault, isPlainObject } from '../index';
+import { createDefault, isPlainObject } from '../utils/general';
 
 describe('isPlainObject', () => {
   it('should return true for plain objects', () => {
@@ -49,5 +49,12 @@ describe('createDefault', () => {
   it('should not allow the usage of non-POJOs', () => {
     expect(() => createDefault(new Map())).toThrow();
     expect(() => createDefault(new Array())).toThrow();
+  });
+
+  it('should be able to nest symbol keys', () => {
+    const dict = createDefault();
+    const symbol = Symbol('id');
+    dict[symbol][symbol][symbol] = 'nice';
+    expect(dict[symbol][symbol][symbol]).toEqual('nice');
   });
 });
