@@ -1,4 +1,103 @@
 /**
+ * identifier internally used to identifiy the symbol
+ * on the hole stringify/unstrigify of params send to
+ * the function that is going to run on the worker
+ */
+const SYMBOL_IDENTIFIER = `________symbol`;
+
+/**
+ * Parsers to stringifiy valeus as they where being
+ * write on the editor, for example a string value xx
+ * should be 'xx' (with quotation marks)
+ */
+const STRINGIFY = {
+  string: (arg) => `'${arg}'`,
+  object: (arg) => JSON.stringify(arg),
+  symbol: (arg) =>
+    JSON.stringify({
+      [SYMBOL_IDENTIFIER]: 'symbol',
+      description: arg.description,
+    }),
+};
+
+/**
+ * this function is going to be stringified
+ * so it should NOT have exernal dependencies
+ * @param {Array} params
+ * @returns the args the way we should send
+ * to function 'func'
+ */
+function parseArgs(params) {
+  const UNSTRINGIFY = {
+    object: (arg) => {
+      if (arg.hasOwnProperty([SYMBOL_IDENTIFIER])) {
+        return Symbol(arg.description);
+      }
+      return arg;
+    },
+  };
+  return params.map((param) => {
+    const parser = UNSTRINGIFY[typeof param];
+    return parser ? parser(param) : param;
+  });
+}
+
+/**
+ * create JS as a string to send to Blob
+ */
+function getWorkerFIle(func, args) {
+  const _args = args.map((arg) => {
+    const parser = STRINGIFY[typeof arg];
+    return parser ? parser(arg) : arg;
+  });
+
+  return `
+         const SYMBOL_IDENTIFIER = '${SYMBOL_IDENTIFIER}';
+         const args = parseArgs([${_args}]);
+         ${parseArgs.toString()}
+         const value = (${func.toString()})(...args)
+         postMessage({_type: 'return', value })
+       `;
+}
+
+/**
+ * extends worker and add the following functionalities:
+ * 1) add a onReturn event handler that can be implemented as onmessage
+ *    which emits only events with _type = 'return'
+ * 2) add a onMessage event handler that can be implemented as onmessage
+ *    which emits only events WITHOUT _type = 'return'
+ */
+export class InlineWorker extends Worker {
+  constructor(scriptURL, options) {
+    super(scriptURL, options);
+
+    // set empty rerun value listner so we don't receive an
+    // error when trying to run this function on handleReturnValue
+    this.onReturn = () => {};
+    this.onMessage = () => {};
+    this.addEventListener('message', this.#handleMessage.bind(this));
+  }
+
+  /**
+   * Handle only the postMessage that returns from
+   * running the function that we sent to the worker
+   * @param {MessageEvent} ev
+   */
+  #handleMessage(ev) {
+    if (ev.data?._type === 'return') {
+      this.onReturn(ev.data.value);
+    } else {
+      this.onMessage(ev);
+    }
+  }
+
+  terminate() {
+    this.removeEventListener('message', this.#handleMessage);
+    super.terminate();
+  }
+}
+
+/**
  * Function to execute a new thread on the same file. This function wraps the send function
  * into a generated URL object so we can use this "file" as a param to create a worker.
  * Caution:
@@ -6,71 +105,27 @@
  *   be defined within it
  * - neither importScripts or module imports will work
  * - we can't retrieve anything that the wrapped function returns
- * for example of usage check the tests
+ *
+ * Example: const worker = runOnWorker(() => console.log('BANANA'));
+ * for more example of usage check the tests
  * @param {Function} func
- * @param {{ allowNonThreadExecution: Boolean, args: Array, type: ('classic'|'module') }} options
- * @returns {Worker} the spawned worker object;
+ * @param {{ allowNonWorkerExecution: Boolean, args: Array, type: ('classic'|'module') }} options
+ * @returns {InlineWorker} the spawned InlineWorker object that extends browser Worker;
  */
 export function runOnWorker(
   func = function () {},
-  { allowNonThreadExecution = false, args = [], type = 'module' } = {}
+  { allowNonWorkerExecution = false, args = [], type = 'module' } = {}
 ) {
   if (!window || !window.Worker) {
-    if (!allowNonThreadExecution) {
+    if (!allowNonWorkerExecution) {
       throw new Error('Worker API not found (window.Worker falsy)');
     }
     func();
   }
 
-  const SYMBOL_IDENTIFIER = `________symbol`;
-
-  const INPUT_PARSERS = {
-    string: (arg) => `'${arg}'`,
-    object: (arg) => JSON.stringify(arg),
-    symbol: (arg) =>
-      JSON.stringify({
-        [SYMBOL_IDENTIFIER]: 'symbol',
-        description: arg.description,
-      }),
-  };
-
-  const _args = args.map((arg) => {
-    const parser = INPUT_PARSERS[typeof arg];
-    return parser ? parser(arg) : arg;
-  });
-
-  /**
-   * this function is going to be stringified so it
-   * should NOT have exernal dependencies
-   * @param {Array} params
-   * @returns the args the way we should send to function 'func'
-   */
-  function parseArgs(params) {
-    const OUTPUT_PARSERS = {
-      object: (arg) => {
-        if (arg.hasOwnProperty([SYMBOL_IDENTIFIER])) {
-          return Symbol(arg.description);
-        }
-        return arg;
-      },
-    };
-    return params.map((param) => {
-      const parser = OUTPUT_PARSERS[typeof param];
-      return parser ? parser(param) : param;
-    });
-  }
-
-  const workerFile = `
-   const SYMBOL_IDENTIFIER = '${SYMBOL_IDENTIFIER}';
-   const args = parseArgs([${_args}]);
-   ${func.name}(...args);
-   ${func.toString()}
-   ${parseArgs.toString()}
- `;
-
-  return new Worker(
+  return new InlineWorker(
     URL.createObjectURL(
-      new Blob([workerFile], {
+      new Blob([getWorkerFIle(func, args)], {
         type: 'application/javascript',
       })
     ),
