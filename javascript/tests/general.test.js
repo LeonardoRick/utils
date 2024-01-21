@@ -1,4 +1,4 @@
-import { createDefault, isPlainObject } from '../utils/general';
+import { createDefault, isPlainObject } from '../src/general';
 
 describe('isPlainObject', () => {
   it('should return true for plain objects', () => {

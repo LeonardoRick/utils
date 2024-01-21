@@ -1,4 +1,2 @@
-import { createDefault, isPlainObject } from './utils/general';
-import { runOnWorker } from './utils/run-on-worker';
-
-export { createDefault, isPlainObject, runOnWorker };
+export * from './dist/index.js'; // Re-export named exports
+export { default } from './dist/index.js'; // Re-export default export

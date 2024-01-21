@@ -1,4 +1,4 @@
-import { runOnWorker } from '../utils/run-on-worker';
+import { runOnWorker } from '../src/run-on-worker';
 
 describe('runOnWorker', () => {
   it('should send a function to a worker and receive back returned value', (done) => {

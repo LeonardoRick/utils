@@ -1,5 +1,5 @@
 /**
- * identifier internally used to identifiy the symbol
+ * identifier internally used to identify the symbol
  * on the hole stringify/unstrigify of params send to
  * the function that is going to run on the worker
  */
@@ -104,7 +104,6 @@ export class InlineWorker extends Worker {
  * - The function must be not dependent of any global variable. Everything that it uses must
  *   be defined within it
  * - neither importScripts or module imports will work
- * - we can't retrieve anything that the wrapped function returns
  *
  * Example: const worker = runOnWorker(() => console.log('BANANA'));
  * for more example of usage check the tests
