@@ -1,19 +1,5 @@
 import { createDefault, isPlainObject } from '../src/general';
 
-describe('isPlainObject', () => {
-  it('should return true for plain objects', () => {
-    expect(isPlainObject({})).toEqual(true);
-    expect(isPlainObject(new Object())).toEqual(true);
-  });
-
-  it('should return false for no plain objects', () => {
-    expect(isPlainObject([])).toEqual(false);
-    expect(isPlainObject(new Date())).toEqual(false);
-    expect(isPlainObject(new Map())).toEqual(false);
-    expect(isPlainObject(function () {})).toEqual(false);
-  });
-});
-
 describe('createDefault', () => {
   it('should behave properly as an object and allow asignments on undefined properties', () => {
     const dict = createDefault();
@@ -46,6 +32,11 @@ describe('createDefault', () => {
     expect(() => new createDefault()).toThrow();
   });
 
+  it('should allow the usage of a start object', () => {
+    const dict = createDefault({ value: 1 });
+    expect(dict.value).toEqual(1);
+  });
+
   it('should not allow the usage of non-POJOs', () => {
     expect(() => createDefault(new Map())).toThrow();
     expect(() => createDefault(new Array())).toThrow();
@@ -56,5 +47,25 @@ describe('createDefault', () => {
     const symbol = Symbol('id');
     dict[symbol][symbol][symbol] = 'nice';
     expect(dict[symbol][symbol][symbol]).toEqual('nice');
+  });
+});
+
+describe('isPlainObject', () => {
+  it('should return true for plain objects', () => {
+    expect(isPlainObject({})).toEqual(true);
+    expect(isPlainObject(new Object())).toEqual(true);
+  });
+
+  it('should return false for no plain objects', () => {
+    expect(isPlainObject([])).toEqual(false);
+    expect(isPlainObject(new Date())).toEqual(false);
+    expect(isPlainObject(new Map())).toEqual(false);
+    expect(isPlainObject(function () {})).toEqual(false);
+  });
+
+  it('should return false for falsy values', () => {
+    expect(isPlainObject(false)).toEqual(false);
+    expect(isPlainObject(null)).toEqual(false);
+    expect(isPlainObject(undefined)).toEqual(false);
   });
 });

@@ -3,8 +3,9 @@
  * assignments without errors like
  * const dict = createDefault()
  * dict.value1.value2.value3 = 'something'
- * @param {Object} target usually
- * @returns {Proxy} object with specified behaviors
+ * @template T
+ * @param {T} target usually
+ * @returns {T} or Proxy<T> object with specified behaviors
  */
 const _DEFAULT_DICT_PROTECTED_PROPS = new Set(['toJSON']);
 export function createDefault(target = {}) {
@@ -26,6 +27,11 @@ export function createDefault(target = {}) {
   });
 }
 
+/**
+ * Check if an object is a POJO
+ * @param {any} obj
+ * @returns {boolean}
+ */
 export function isPlainObject(obj) {
-  return typeof obj === 'object' && Object.getPrototypeOf(obj) === Object.prototype;
+  return !!obj && typeof obj === 'object' && Object.getPrototypeOf(obj) === Object.prototype;
 }

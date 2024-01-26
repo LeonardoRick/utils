@@ -60,6 +60,9 @@ function getWorkerFIle(func, args) {
        `;
 }
 
+// use window.Worker only if window is defined, otherwise use node worker_threads Worker
+const _Worker = typeof window !== 'undefined' ? Worker : require('worker_threads').Worker;
+
 /**
  * extends worker and add the following functionalities:
  * 1) add a onReturn event handler that can be implemented as onmessage
@@ -67,10 +70,9 @@ function getWorkerFIle(func, args) {
  * 2) add a onMessage event handler that can be implemented as onmessage
  *    which emits only events WITHOUT _type = 'return'
  */
-export class InlineWorker extends Worker {
+export class InlineWorker extends _Worker {
   constructor(scriptURL, options) {
     super(scriptURL, options);
-
     // set empty rerun value listner so we don't receive an
     // error when trying to run this function on handleReturnValue
     this.onReturn = () => {};
@@ -117,7 +119,9 @@ export function runOnWorker(
 ) {
   if (!window || !window.Worker) {
     if (!allowNonWorkerExecution) {
-      throw new Error('Worker API not found (window.Worker falsy)');
+      throw new Error(
+        'Worker API not found (window.Worker falsy and we currently do not support node thread workers)'
+      );
     }
     func();
   }
