@@ -7,5 +7,5 @@ export class InlineWorker<F extends Function> extends Worker {
 
 export function runOnWorker<F extends Function>(
   func: F,
-  options?: { allowNonWorkerExecution: Boolean; args: Array<any>; type: 'classic' | 'module' }
+  options?: { allowNonWorkerExecution?: Boolean; args?: Array<any>; type?: 'classic' | 'module' }
 ): InlineWorker<F>;

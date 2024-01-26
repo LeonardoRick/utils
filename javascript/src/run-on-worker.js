@@ -59,9 +59,10 @@ function getWorkerFIle(func, args) {
          postMessage({_type: 'return', value })
        `;
 }
-
-// use window.Worker only if window is defined, otherwise use node worker_threads Worker
-const _Worker = typeof window !== 'undefined' ? Worker : require('worker_threads').Worker;
+// use window.Worker only if window is defined, otherwise extends an anonymous class.
+// this is just to be able to import the class without errors, but understand that
+// in a node environment, the runOnWorker function will not work!
+const _Worker = typeof window !== 'undefined' ? Worker : class {};
 
 /**
  * extends worker and add the following functionalities:
@@ -117,10 +118,10 @@ export function runOnWorker(
   func = function () {},
   { allowNonWorkerExecution = false, args = [], type = 'module' } = {}
 ) {
-  if (!window || !window.Worker) {
+  if (typeof window === 'undefined' || !window || !window.Worker) {
     if (!allowNonWorkerExecution) {
       throw new Error(
-        'Worker API not found (window.Worker falsy and we currently do not support node thread workers)'
+        'Worker API not found (window.Worker falsy and inline functions execution on another thread is currenlty not supported by node thread_workers)'
       );
     }
     func();
