@@ -1,4 +1,4 @@
-import { hypotenuse, round } from './math';
+import { hypotenuse, round } from './math.js';
 
 /**
  * Function to get the distance between the cursor (mouse) and the center of a html tag
