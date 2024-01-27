@@ -111,7 +111,7 @@ export class InlineWorker extends _Worker {
  * Example: const worker = runOnWorker(() => console.log('BANANA'));
  * for more example of usage check the tests
  * @param {Function} func
- * @param {{ allowNonWorkerExecution: Boolean, args: Array, type: ('classic'|'module') }} options
+ * @param {{ allowNonWorkerExecution: boolean, args: any[], type: ('classic'|'module') }} options
  * @returns {InlineWorker} the spawned InlineWorker object that extends browser Worker;
  */
 export function runOnWorker(

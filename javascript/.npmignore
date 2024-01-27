@@ -2,3 +2,4 @@ node_modules
 tests
 .prettierrc
 jest.config.js
+coverage
