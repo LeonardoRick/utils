@@ -6,10 +6,11 @@ export interface IgetCursorCenterDistanceHandler {
   normalizedDistance: number;
 }
 
-export function getCursorCenterDistance(
-  box: HTMLElement,
-  options?: { addListener?: boolean }
-): {
+export function getCursorCenterDistance(options?: {
+  addListener?: boolean;
+  box?: HTMLElement;
+  normalizedDistanceDecimals?: number;
+}): {
   handler: (e: Event) => getCursorCenterDistanceHandlerModel;
   container: HTMLElement;
   removeListeners: () => void;
@@ -17,8 +18,8 @@ export function getCursorCenterDistance(
 
 export function moveTagToCursorPosition(
   tag: HTMLElement,
-  box?: HTMLElement,
-  options?: { addListener: boolean }
+
+  options?: { addListener?: boolean; box?: HTMLElement }
 ): {
   handler: (e: Event) => void;
   container: HTMLElement;

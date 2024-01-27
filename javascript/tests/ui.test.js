@@ -6,17 +6,17 @@ describe('getCursorCenterDistance', () => {
       clientX: cursorPosition,
       clientY: cursorPosition,
     });
-    const div = document.createElement('div');
-    Object.defineProperties(div, {
+    const box = document.createElement('div');
+    Object.defineProperties(box, {
       offsetHeight: { value: size },
       offsetWidth: { value: size },
     });
-    return { mousemove, div };
+    return { mousemove, box };
   }
   it('should recognize a cursor at the center as 0', () => {
-    const { mousemove, div } = setup(500, 1000);
+    const { mousemove, box } = setup(500, 1000);
 
-    const { handler } = getCursorCenterDistance(div);
+    const { handler } = getCursorCenterDistance({ box });
     const { x, y, maxDistance, distance, normalizedDistance } = handler(mousemove);
     expect(x).toEqual(0);
     expect(y).toEqual(0);
@@ -27,9 +27,9 @@ describe('getCursorCenterDistance', () => {
   });
 
   it('should recognize a cursor a little bit at left not at the center', () => {
-    const { mousemove, div } = setup(400, 1000);
+    const { mousemove, box } = setup(400, 1000);
 
-    const { handler } = getCursorCenterDistance(div);
+    const { handler } = getCursorCenterDistance({ box });
     const { x, y, maxDistance, distance, normalizedDistance } = handler(mousemove);
     expect(x).toEqual(-100);
     expect(y).toEqual(-100);

@@ -33,3 +33,15 @@ If you are going to add a new "module" (file) make sure to keep the same structu
    The signature of the exported classes/functions should be present on `types/` as a `.d.ts` file. This file should also be imported on the `types/index.d.ts` so all types of the exported package members can be properly infered by IDE's
 
 Try to make the functions inside each module ordered alphabetically when it's possible!
+
+#### Code patterns
+
+Optional parameters: Usually optional parameters are the last param of the function and are inside a object with default values.
+
+```javascript
+funciton something(a, {
+  opt1 = true,
+  opt2 = undefined,
+  opt3 = 5,
+} = {})
+```

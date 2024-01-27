@@ -28,10 +28,11 @@ import { hypotenuse, round } from './math';
  * removeListeners: () => void,
  * }}
  */
-export function getCursorCenterDistance(
-  box,
-  { addListener = true, normalizedDistanceDecimals = 5 } = {}
-) {
+export function getCursorCenterDistance({
+  addListener = true,
+  box = undefined,
+  normalizedDistanceDecimals = 5,
+} = {}) {
   const container = box || document.querySelector('html');
 
   const handler = (e) => {
@@ -62,16 +63,19 @@ export function getCursorCenterDistance(
 /**
  * Function to make some HTML element move with the cursor (mouse)
  * @param {HTMLElement} tag that will navigate across the screen when the mouse moves
- * @param {HTMLElement} box where the mouse would be navigating inside. It's an optional
- * parameter that if not passed is the html tag
- * @param {{ addlistener: boolean }} options
+ * @param {{ addlistener: boolean, box: HTMLElement }} options
+ *  box: where the mouse would be navigating inside. It's an optional
+ *  parameter that if not passed is the html tag
  * @returns {{
  *  handler: (e: Event) => void,
  * container: HTMLElement,
  * removeListeners: () => void,
  * }}
  */
-export function moveTagToCursorPosition(tag, box, { addListener = true } = {}) {
+export function moveTagToCursorPosition(tag, { box = undefined, addListener = true } = {}) {
+  // we need to remove pointer events from the tag so
+  // mousemove can be triggered  behing the tag
+  tag.style.pointerEvents = 'none';
   const container = box || document.querySelector('html');
   const handler = (e) => {
     const x = e.clientX;

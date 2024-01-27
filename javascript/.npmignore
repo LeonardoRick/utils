@@ -3,3 +3,4 @@ tests
 .prettierrc
 jest.config.js
 coverage
+src/
